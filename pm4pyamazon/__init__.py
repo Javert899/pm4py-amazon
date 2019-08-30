@@ -3,13 +3,25 @@ import pyarrow.parquet as pq
 import boto3
 import tempfile
 
-
 bucket = 'elasticbeanstalk-us-east-2-809900290383'
 enable_col_replacement = True
 COLUMNS = "columns"
 
 
+def get_list_parquets_from_s3(path, parameters=None):
+    if parameters is None:
+        parameters = {}
+
+    s3_resource = boto3.resource('s3')
+    buck = s3_resource.Bucket(bucket)
+    files = [path + obj.key for obj in buck.objects.filter(Delimiter=path) if obj.key.endswith(".parquet")]
+    return files
+
+
 def get_parquet_from_s3(path, parameters=None):
+    if parameters is None:
+        parameters = {}
+
     filename = tempfile.NamedTemporaryFile(suffix=".parquet")
     filename.close()
 
