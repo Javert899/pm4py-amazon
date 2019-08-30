@@ -1,9 +1,25 @@
 import pm4py
 import pyarrow.parquet as pq
+import boto3
+import tempfile
+
 
 bucket = 'elasticbeanstalk-us-east-2-809900290383'
 enable_col_replacement = True
 COLUMNS = "columns"
+
+
+def get_parquet_from_s3(path, parameters=None):
+    filename = tempfile.NamedTemporaryFile(suffix=".parquet")
+    filename.close()
+
+    s3_resource = boto3.resource('s3')
+
+    path = path.split("s3:///")[1]
+
+    s3_resource.Object(bucket, path).download_file(filename.name)
+
+    return filename.name
 
 
 def import_parquet_file(path, parameters=None):
@@ -27,6 +43,9 @@ def import_parquet_file(path, parameters=None):
         parameters = {}
 
     columns = parameters[COLUMNS] if COLUMNS in parameters else None
+
+    if path.startswith("s3:///"):
+        path = get_parquet_from_s3(path)
 
     if columns:
         if enable_col_replacement:
