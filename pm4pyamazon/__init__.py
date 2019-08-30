@@ -17,7 +17,7 @@ def get_list_parquets_from_s3(path, parameters=None):
     s3_resource = boto3.resource('s3')
     buck = s3_resource.Bucket(bucket)
     files = ["s3:///" + obj.key for obj in buck.objects.filter(Delimiter=path) if
-             obj.key.startswith(path[1]) and obj.key.endswith(".parquet")]
+             obj.key.startswith(path[1:]) and obj.key.endswith(".parquet")]
     return files
 
 
@@ -88,7 +88,7 @@ def import_parquet_file(path, parameters=None):
     return df
 
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __doc__ = "Process Mining for Python - Amazon support"
 __author__ = 'PADS'
 __author_email__ = 'pm4py@pads.rwth-aachen.de'
